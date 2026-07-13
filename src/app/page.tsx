@@ -9,12 +9,12 @@ import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/sections/Hero";
 import Services from "@/components/sections/Services";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
-import Portfolio from "@/components/sections/Portfolio";
+// import Portfolio from "@/components/sections/Portfolio";
 import Process from "@/components/sections/Process";
-import About from "@/components/sections/About";
+// import About from "@/components/sections/About";
 import Testimonials from "@/components/sections/Testimonials";
 import CTABanner from "@/components/sections/CTABanner";
-import Contact from "@/components/sections/Contact";
+// import Contact from "@/components/sections/Contact";
 import Footer from "@/components/layout/Footer";
 
 export default function Home() {
@@ -25,12 +25,12 @@ export default function Home() {
         <Hero />
         <Services />
         <WhyChooseUs />
-        <Portfolio />
+        {/* <Portfolio /> */}
         <Process />
-        <About />
+        {/* <About /> */}
         <Testimonials />
         <CTABanner />
-        <Contact />
+        {/* <Contact /> */}
       </main>
       <Footer />
     </>

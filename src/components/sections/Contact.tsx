@@ -1,33 +1,34 @@
 "use client";
 
 /* =============================================================================
-   CONTACT SECTION — COOL ANIMATIONS
+   CONTACT SECTION — HIGH FIDELITY LAYOUT (MATCHING ABOUT US COLOR PALETTE)
    =============================================================================
-   Staggered field slide-in, spring button, 3D form card entrance,
-   animated success checkmark, and pulsing contact icons.
+   Features a 2-column grid. Left side: Title, Subtitles, Client logo wall,
+   and brand subtitle. Right side: A clean white card form styled in harmony
+   with the off-white layout. Integrates custom flag country code select box,
+   recaptcha labels, and a circular-arrow pill submit button.
    ============================================================================= */
 
 import { useState, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SectionWrapper from "@/components/ui/SectionWrapper";
-import { COMPANY_EMAIL } from "@/lib/constants";
+import { useLanguage } from "@/context/LanguageContext";
 
-const PROJECT_TYPES = ["Custom Website", "Landing Page", "E-commerce", "Company Profile", "Website Redesign", "Other"];
-
-const inputClasses = "w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition-all duration-300";
-
-const fieldVariants = {
-  hidden: { opacity: 0, x: -30, filter: "blur(4px)" },
-  visible: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    filter: "blur(0px)",
-    transition: { delay: i * 0.08, duration: 0.5, type: "spring" as const, stiffness: 80 },
-  }),
-};
+const clientLogos = [
+  "Agung Sedayu",
+  "Danantara ID",
+  "GYS Group",
+  "Abbott Labs",
+  "Schneider",
+  "Rolls-Royce",
+  "KTM Racing",
+  "Wilkhahn",
+  "Spital Thurgau",
+];
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useLanguage();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,173 +36,174 @@ export default function Contact() {
   };
 
   return (
-    <SectionWrapper id="contact" className="bg-white">
-      <div className="grid lg:grid-cols-2 gap-16">
-        {/* Left */}
-        <div>
-          <motion.span
-            initial={{ opacity: 0, filter: "blur(10px)" }}
-            whileInView={{ opacity: 1, filter: "blur(0px)" }}
-            viewport={{ once: true }}
-            className="inline-block text-teal-500 text-sm font-medium tracking-wider uppercase"
-          >
-            Get in Touch
-          </motion.span>
+    <SectionWrapper id="contact" className="bg-[#FAF9F5] py-20 text-[#1E1B18]">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        
+        {/* ---- Left Column: Editorial Heading & Client Logos ---- */}
+        <div className="lg:col-span-6 space-y-6 text-left select-none">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#1E1B18] font-display leading-[1.15]">
+            {t("contact_title")}
+          </h1>
+          
+          <h2 className="text-lg sm:text-xl font-medium text-slate-700 font-sans leading-relaxed">
+            {t("contact_subtitle")}
+          </h2>
 
-          <motion.h2
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 60 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mt-3 mb-6"
-          >
-            Let&apos;s discuss{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">your project</span>
-          </motion.h2>
+          <p className="text-slate-500 text-sm font-normal">
+            {t("contact_desc")}
+          </p>
 
-          <motion.p
-            initial={{ opacity: 0, x: -30, filter: "blur(4px)" }}
-            whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 60 }}
-            className="text-slate-500 leading-relaxed mb-8"
-          >
-            Have a website project in mind? Fill out the form and we&apos;ll get back to you within 24 hours to discuss how we can help bring your vision to life.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 80 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center gap-3 text-slate-500 text-sm group">
-              <motion.div
-                whileHover={{ scale: 1.15, rotate: 8 }}
-                transition={{ type: "spring", stiffness: 400 }}
-                className="relative"
-              >
-                <motion.div
-                  className="absolute inset-0 rounded-xl bg-teal-200 opacity-0 group-hover:opacity-40"
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <div className="relative w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center text-teal-600 group-hover:bg-teal-200 transition-colors">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
-                </div>
-              </motion.div>
-              <span>{COMPANY_EMAIL}</span>
+          {/* Minimalist Client Logo Grid */}
+          <div className="pt-8 border-t border-slate-200/60 mt-10">
+            <div className="grid grid-cols-3 gap-y-8 gap-x-6 opacity-35">
+              {clientLogos.map((logo) => (
+                <span
+                  key={logo}
+                  className="font-display font-bold text-xs sm:text-sm tracking-widest text-[#1E1B18] uppercase"
+                >
+                  {logo}
+                </span>
+              ))}
             </div>
-            <div className="flex items-center gap-3 text-slate-500 text-sm group">
-              <motion.div
-                whileHover={{ scale: 1.15, rotate: -8 }}
-                transition={{ type: "spring", stiffness: 400 }}
-                className="relative"
-              >
-                <motion.div
-                  className="absolute inset-0 rounded-xl bg-teal-200 opacity-0 group-hover:opacity-40"
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                />
-                <div className="relative w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center text-teal-600 group-hover:bg-teal-200 transition-colors">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                </div>
-              </motion.div>
-              <span>Response within 24 hours</span>
-            </div>
-          </motion.div>
+            
+            {/* Global Brands Sub-text */}
+            <p className="text-sm font-semibold text-[#1E1B18] mt-10 tracking-wide">
+              {t("contact_brands")}
+            </p>
+          </div>
         </div>
 
-        {/* Right — Form */}
-        <motion.div
-          initial={{ opacity: 0, x: 40, rotateY: -8 }}
-          whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, type: "spring", stiffness: 60 }}
-          style={{ perspective: 800 }}
-        >
-          <AnimatePresence mode="wait">
-            {submitted ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.8, rotateX: 20 }}
-                animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-                transition={{ type: "spring", stiffness: 100 }}
-                className="p-10 rounded-2xl bg-white border border-slate-100 shadow-lg text-center"
-              >
+        {/* ---- Right Column: Form Container Card (Styled in Harmony with About Us) ---- */}
+        <div className="lg:col-span-6 w-full">
+          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-lg p-6 sm:p-8 relative">
+            <AnimatePresence mode="wait">
+              {submitted ? (
                 <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-4"
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="py-12 text-center space-y-4"
                 >
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                  <div className="w-16 h-16 mx-auto rounded-full bg-zinc-100 flex items-center justify-center text-zinc-900">
+                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  </div>
+                  <h3 className="font-display font-semibold text-lg sm:text-xl text-zinc-950">
+                    {t("contact_success_title")}
+                  </h3>
+                  <p className="text-zinc-500 text-sm max-w-sm mx-auto leading-relaxed">
+                    {t("contact_success_desc")}
+                  </p>
                 </motion.div>
-                <motion.h3
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-xl font-semibold text-slate-900 mb-2"
-                >
-                  Message Sent!
-                </motion.h3>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-slate-500 text-sm"
-                >
-                  Thank you for reaching out. We&apos;ll be in touch shortly.
-                </motion.p>
-              </motion.div>
-            ) : (
-              <motion.form key="form" onSubmit={handleSubmit} className="p-8 rounded-2xl bg-white border border-slate-100 shadow-lg space-y-5">
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <motion.div custom={0} variants={fieldVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <label className="block text-sm text-slate-700 font-medium mb-1.5">Name</label>
-                    <input type="text" required className={inputClasses} placeholder="Your name" />
-                  </motion.div>
-                  <motion.div custom={1} variants={fieldVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <label className="block text-sm text-slate-700 font-medium mb-1.5">Email</label>
-                    <input type="email" required className={inputClasses} placeholder="your@email.com" />
-                  </motion.div>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <motion.div custom={2} variants={fieldVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <label className="block text-sm text-slate-700 font-medium mb-1.5">Company Name</label>
-                    <input type="text" className={inputClasses} placeholder="Your company (optional)" />
-                  </motion.div>
-                  <motion.div custom={3} variants={fieldVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <label className="block text-sm text-slate-700 font-medium mb-1.5">Project Type</label>
-                    <select required className={`${inputClasses} appearance-none`} defaultValue="">
-                      <option value="" disabled>Select type</option>
-                      {PROJECT_TYPES.map((type) => (<option key={type} value={type}>{type}</option>))}
-                    </select>
-                  </motion.div>
-                </div>
-                <motion.div custom={4} variants={fieldVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                  <label className="block text-sm text-slate-700 font-medium mb-1.5">Message</label>
-                  <textarea required rows={4} className={`${inputClasses} resize-none`} placeholder="Tell us about your project..." />
-                </motion.div>
-                <motion.button
-                  type="submit"
-                  custom={5}
-                  variants={fieldVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                  className="w-full py-3.5 rounded-xl bg-teal-500 text-white font-semibold hover:bg-teal-600 hover:shadow-lg hover:shadow-teal-500/25 transition-all duration-300"
-                >
-                  Send Message
-                </motion.button>
-              </motion.form>
-            )}
-          </AnimatePresence>
-        </motion.div>
+              ) : (
+                <form key="form" onSubmit={handleSubmit} className="space-y-5 text-left">
+                  {/* Name field */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+                      {t("contact_label_name")}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={t("contact_placeholder_name")}
+                      className="w-full px-4 py-3.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-950 text-sm focus:outline-none focus:border-zinc-800 transition-colors font-medium placeholder-zinc-400"
+                    />
+                  </div>
+
+                  {/* Email field */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+                      {t("contact_label_email")}
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder={t("contact_placeholder_email")}
+                      className="w-full px-4 py-3.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-950 text-sm focus:outline-none focus:border-zinc-800 transition-colors font-medium placeholder-zinc-400"
+                    />
+                  </div>
+
+                  {/* Phone Number with Custom Flag Country Selector */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+                      {t("contact_label_phone")}
+                    </label>
+                    <div className="flex gap-2">
+                      {/* Flag box */}
+                      <div className="flex items-center gap-1.5 px-3 py-3 border border-zinc-200 bg-zinc-50 rounded-lg text-sm select-none font-medium text-zinc-800">
+                        <svg className="w-5 h-3.5 shadow-sm border border-zinc-200" viewBox="0 0 3 2">
+                          <rect width="3" height="1" fill="#E21F26" />
+                          <rect y="1" width="3" height="1" fill="#FFFFFF" />
+                        </svg>
+                        <span className="text-xs">+62</span>
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        placeholder={t("contact_placeholder_phone")}
+                        className="flex-1 px-4 py-3.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-950 text-sm focus:outline-none focus:border-zinc-800 transition-colors font-medium placeholder-zinc-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Company Name field */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+                      {t("contact_label_company")}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={t("contact_placeholder_company")}
+                      className="w-full px-4 py-3.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-950 text-sm focus:outline-none focus:border-zinc-800 transition-colors font-medium placeholder-zinc-400"
+                    />
+                  </div>
+
+                  {/* Message field */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+                      {t("contact_label_message")}
+                    </label>
+                    <textarea
+                      rows={4}
+                      placeholder={t("contact_placeholder_message")}
+                      className="w-full px-4 py-3.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-950 text-sm focus:outline-none focus:border-zinc-800 transition-colors font-medium placeholder-zinc-400 resize-none"
+                    />
+                  </div>
+
+                  {/* Form Footer: reCAPTCHA & Submit pill button */}
+                  <div className="pt-4 flex flex-row items-center justify-between gap-4">
+                    {/* reCAPTCHA Info */}
+                    <div className="text-[10px] text-zinc-400 font-sans tracking-wide">
+                      <p className="font-semibold">{t("contact_captcha")}</p>
+                      <div className="flex gap-2 mt-0.5">
+                        <a href="#" className="hover:text-zinc-650 font-bold underline uppercase">{t("contact_privacy")}</a>
+                        <span className="opacity-40">|</span>
+                        <a href="#" className="hover:text-zinc-650 font-bold underline uppercase">{t("contact_terms")}</a>
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-3 pl-6 pr-2 py-2 rounded-full bg-[#1E1B18] text-white hover:bg-black transition-all cursor-pointer group text-xs font-black tracking-widest select-none"
+                    >
+                      {t("contact_btn_send")}
+                      <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-white group-hover:bg-zinc-700 transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
       </div>
     </SectionWrapper>
   );
