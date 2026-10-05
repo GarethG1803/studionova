@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useSyncExternalStore } from "react";
 
 export type Language = "ID" | "EN";
 
@@ -203,20 +203,37 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("EN");
+// The chosen language lives in localStorage. React reads it through
+// useSyncExternalStore, which uses "EN" while rendering on the server and
+// then switches to the saved value in the browser without a hydration error.
+const STORAGE_KEY = "studio_nova_lang";
+const listeners = new Set<() => void>();
 
-  // Load saved preference
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSavedLanguage(): Language {
+  return localStorage.getItem(STORAGE_KEY) === "ID" ? "ID" : "EN";
+}
+
+function getServerLanguage(): Language {
+  return "EN";
+}
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const language = useSyncExternalStore(subscribe, getSavedLanguage, getServerLanguage);
+
   useEffect(() => {
-    const saved = localStorage.getItem("studio_nova_lang") as Language;
-    if (saved === "ID" || saved === "EN") {
-      setLanguageState(saved);
-    }
-  }, []);
+    document.documentElement.lang = language === "ID" ? "id" : "en";
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem("studio_nova_lang", lang);
+    localStorage.setItem(STORAGE_KEY, lang);
+    listeners.forEach((listener) => listener());
   };
 
   const t = (key: keyof typeof translations.EN) => {

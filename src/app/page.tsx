@@ -2,40 +2,155 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowLeft, ChevronDown, Menu, X, Box, Hexagon, Fingerprint, Globe, Mail, Camera as Instagram, BriefcaseBusiness as Linkedin, Video as Youtube, Bot, ShieldCheck, MessageSquare, Code, Calendar, Check } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
-const services = [
-  { title: "Website Development", copy: "Modern, high-performing websites that represent your brand.", detail: "From a focused landing page to a complete company website. We bring together thoughtful design, responsive development, and a content structure that helps your customers find what they need.", items: ["Responsive website design", "Next.js development & CMS", "SEO & performance optimization"] },
-  { title: "System Development", copy: "Custom systems to streamline your operations and increase productivity.", detail: "Software shaped around the way your team works. We map your workflow and build a practical, dependable system that makes everyday operations simpler.", items: ["Internal dashboards & portals", "Workflow automation", "API & platform integrations"] },
-  { title: "UI/UX Design", copy: "Beautiful, functional, and user-centered designs.", detail: "Clear experiences start with understanding people. We turn research into user journeys, interactive prototypes, and considered interfaces that feel natural to use.", items: ["User research & experience mapping", "Wireframes & interactive prototypes", "Interface design & design systems"] },
-  { title: "Consultation & Support", copy: "Get expert advice and ongoing support for your digital products.", detail: "An extra pair of experienced hands for your digital product. Together, we review your priorities, solve technical challenges, and keep your website or system running smoothly.", items: ["Product & technology consultation", "Website maintenance", "Ongoing technical support"] },
+const workflowStyles = [
+  { icon: Bot, color: "#2e9bff" },
+  { icon: MessageSquare, color: "#ffbf29" },
+  { icon: ShieldCheck, color: "#ff6655" },
+  { icon: Calendar, color: "#35b85b" },
+  { icon: Code, color: "#5143da" },
 ];
-const projects = [
-  { name: "NXEDU", type: "Event Platform & Website", description: "An education platform concept connecting people with opportunities, events, and a growing learning community." },
-  { name: "Kim EMS", type: "Company Profile Website", description: "A company profile concept that brings industrial expertise, modern mobility, and a forward-looking brand into one clear digital experience." },
-  { name: "Arunika", type: "Landing Page", description: "A focused landing page concept with a clear story, considered typography, and a direct path from first impression to inquiry." },
-];
-const testimonials = [
-  { quote: "Studio Nova brought our vision to life beyond expectations. Professional, responsive, and truly care about the result.", name: "Rizky Pratama", role: "Founder, NXEDU" },
-  { quote: "The system they built has made our workflow so much more efficient. Highly recommended!", name: "Sinta Wijaya", role: "CEO, KIM EMS" },
-  { quote: "Great design, smooth communication, and on-time delivery. Will definitely work again!", name: "Dimas Ardi", role: "Founder, Arunika" },
-];
-const steps = [
-  ["Discover", "Understand your goals and opportunities."],
-  ["Plan", "Define the strategy and roadmap."],
-  ["Build", "Design and develop your solution."],
-  ["Launch", "Go live and make an impact."],
-];
-const workflows = [
-  { title: "Triage product feedback", icon: Bot, color: "#2e9bff", copy: "Bring customer feedback into one place, group recurring requests, and give your team a clear view of what to build next." },
-  { title: "Resolve support tickets in Slack", icon: MessageSquare, color: "#ffbf29", copy: "Connect your support inbox with your team's Slack workspace so requests reach the right people and updates stay in sync." },
-  { title: "Respond to security alerts faster", icon: ShieldCheck, color: "#ff6655", copy: "Route security alerts to the right team with the context they need to investigate and respond." },
-  { title: "Automate weekly reporting", icon: Calendar, color: "#35b85b", copy: "Collect the metrics that matter and turn them into a consistent weekly report for your team." },
-  { title: "Create your own developer tools", icon: Code, color: "#5143da", copy: "Build focused internal tools around your team's workflow, with integrations that connect your existing systems." },
-];
-type Modal = { kind: "contact"; call?: boolean } | { kind: "service"; index: number } | { kind: "project"; index: number } | { kind: "workflow"; index: number } | { kind: "info"; title: string; copy: string };
+const languages = [{ code: "EN", label: "English (US)" }, { code: "ID", label: "Bahasa Indonesia" }] as const;
+const projectNames = ["NXEDU", "Kim EMS", "Arunika"];
+const testimonialNames = ["Rizky Pratama", "Sinta Wijaya", "Dimas Ardi"];
+
+const en = {
+  nav: { home: "Studio Nova home", main: "Main navigation", services: "Services", work: "Our work", process: "Our process", pricing: "Pricing", about: "About", start: "Start a project", openMenu: "Open menu", closeMenu: "Close menu", language: "Language" },
+  hero: { line1: "From ideas to", line2: "real products.", line3: "We build ", mark: "what's next.", body: ["Studio Nova helps businesses turn ideas into powerful", " digital products — websites, systems, and custom solutions", " that make work simpler and growth faster."], seeWork: "See our work", alt: "Three collaborators turning ideas into websites, systems, and designs" },
+  trusted: { label: "Our clients", text: "Trusted by 50+ businesses across Indonesia and beyond." },
+  servicesHead: { eyebrow: "Our services", title: ["Everything you need", "to build and grow digitally."], note: ["From concept to launch and beyond, we provide", "end-to-end digital solutions tailored to your goals."], viewAll: "View all services", learnMore: "Learn more", illustration: "illustration" },
+  workHead: { eyebrow: "A closer look", title: ["Real projects.", "Real impact."], note: ["A glimpse of what we've built together", "with amazing clients."], seeAll: "See all projects", preview: "website design preview" },
+  processHead: { eyebrow: "How we work", title: ["A simple process,", "from idea to launch."], note: ["We keep things clear and collaborative", "at every step, so you always know what's next."] },
+  testimonialsHead: { label: "Client testimonials", eyebrow: "What our clients say", title: "Trusted by amazing people.", prev: "Previous testimonials", next: "Next testimonials" },
+  workflowsEyebrow: "See what Studio Nova can do",
+  cta: { alt: "A Studio Nova designer at work", eyebrow: "Let's build together", title: "Ready to bring your idea to life?", schedule: "Schedule a call" },
+  footer: { tagline: "Digital solutions for what's next.", product: "Product", demo: "Request a demo", resources: "Resources", blog: "Blog", guides: "Guides", help: "Help Center", company: "Company", aboutUs: "About Us", careers: "Careers", contact: "Contact", rights: "© 2026 Studio Nova. All rights reserved.", terms: "Terms", privacy: "Privacy", security: "Security", cookies: "Cookies", language: "English (US)" },
+  info: {
+    pricing: { title: "Built around your project", copy: "Every project is different. Tell us what you want to build and we will help define the scope, timeline, and a tailored quote. No one-size-fits-all packages." },
+    projectPricing: { title: "Project pricing", copy: "We quote based on your scope, timeline, and technical needs. Share your idea to get a tailored proposal." },
+    blog: { title: "Studio journal", copy: "Our journal is coming soon. In the meantime, explore our process and recent work to get to know the studio." },
+    careers: { title: "Work with Studio Nova", copy: "We are always interested in meeting thoughtful designers and developers. Introduce yourself through our contact form and include a link to your work." },
+    terms: { title: "Terms", copy: "Project scope, payment milestones, ownership, and support terms are agreed in a written proposal before work begins." },
+    privacy: { title: "Privacy", copy: "This preview does not send or store your form entries on a server. Your project brief is prepared in your browser so you can copy and share it." },
+    security: { title: "Security", copy: "This preview does not ask for passwords or payment information. Please avoid including confidential credentials in your project brief." },
+    cookies: { title: "Cookies", copy: "This landing page does not set analytics or advertising cookies." },
+  },
+  dialog: {
+    close: "Close dialog", getInTouch: "Get in touch",
+    contact: { eyebrow: "Let's build together", titleCall: "Let's find a time to talk.", title: "Tell us about your idea.", intro: "A little context is all we need to get started.", name: "Your name", namePlaceholder: "Full name", email: "Email address", service: "What can we help with?", time: "Preferred date and time", brief: "A little about your project", briefPlaceholder: "What would you like to build?", submit: "Prepare project brief", ready: "Your brief is ready.", readyNote: "No message has been sent. Copy your brief to share with your Studio Nova contact.", briefLabel: "Prepared project brief", copy: "Copy brief", copied: "Copied!", copyFailed: "Select the brief above to copy", draftTitle: "Project inquiry", draftName: "Name", draftEmail: "Email", draftService: "Service", draftTime: "Preferred time", draftBrief: "Brief" },
+    service: { eyebrow: "Our services", cta: "Let's talk about your project" },
+    project: { eyebrow: "Selected work / Design preview", alt: "concept website", cta: "Build something like this", next: "Next project" },
+    workflow: { eyebrow: "Made for the way you work", cta: "Explore this idea" },
+  },
+  services: [
+    { title: "Website Development", copy: "Modern, high-performing websites that represent your brand.", detail: "From a focused landing page to a complete company website. We bring together thoughtful design, responsive development, and a content structure that helps your customers find what they need.", items: ["Responsive website design", "Next.js development & CMS", "SEO & performance optimization"] },
+    { title: "System Development", copy: "Custom systems to streamline your operations and increase productivity.", detail: "Software shaped around the way your team works. We map your workflow and build a practical, dependable system that makes everyday operations simpler.", items: ["Internal dashboards & portals", "Workflow automation", "API & platform integrations"] },
+    { title: "UI/UX Design", copy: "Beautiful, functional, and user-centered designs.", detail: "Clear experiences start with understanding people. We turn research into user journeys, interactive prototypes, and considered interfaces that feel natural to use.", items: ["User research & experience mapping", "Wireframes & interactive prototypes", "Interface design & design systems"] },
+    { title: "Consultation & Support", copy: "Get expert advice and ongoing support for your digital products.", detail: "An extra pair of experienced hands for your digital product. Together, we review your priorities, solve technical challenges, and keep your website or system running smoothly.", items: ["Product & technology consultation", "Website maintenance", "Ongoing technical support"] },
+  ],
+  projects: [
+    { type: "Event Platform & Website", description: "An education platform concept connecting people with opportunities, events, and a growing learning community." },
+    { type: "Company Profile Website", description: "A company profile concept that brings industrial expertise, modern mobility, and a forward-looking brand into one clear digital experience." },
+    { type: "Landing Page", description: "A focused landing page concept with a clear story, considered typography, and a direct path from first impression to inquiry." },
+  ],
+  testimonials: [
+    { quote: "Studio Nova brought our vision to life beyond expectations. Professional, responsive, and truly care about the result.", role: "Founder, NXEDU" },
+    { quote: "The system they built has made our workflow so much more efficient. Highly recommended!", role: "CEO, KIM EMS" },
+    { quote: "Great design, smooth communication, and on-time delivery. Will definitely work again!", role: "Founder, Arunika" },
+  ],
+  steps: [
+    ["Discover", "Understand your goals and opportunities."],
+    ["Plan", "Define the strategy and roadmap."],
+    ["Build", "Design and develop your solution."],
+    ["Launch", "Go live and make an impact."],
+  ],
+  workflows: [
+    { title: "Triage product feedback", copy: "Bring customer feedback into one place, group recurring requests, and give your team a clear view of what to build next." },
+    { title: "Resolve support tickets in Slack", copy: "Connect your support inbox with your team's Slack workspace so requests reach the right people and updates stay in sync." },
+    { title: "Respond to security alerts faster", copy: "Route security alerts to the right team with the context they need to investigate and respond." },
+    { title: "Automate weekly reporting", copy: "Collect the metrics that matter and turn them into a consistent weekly report for your team." },
+    { title: "Create your own developer tools", copy: "Build focused internal tools around your team's workflow, with integrations that connect your existing systems." },
+  ],
+};
+
+const id: typeof en = {
+  nav: { home: "Beranda Studio Nova", main: "Navigasi utama", services: "Layanan", work: "Karya kami", process: "Proses kami", pricing: "Harga", about: "Tentang", start: "Mulai proyek", openMenu: "Buka menu", closeMenu: "Tutup menu", language: "Bahasa" },
+  hero: { line1: "Dari ide menjadi", line2: "produk nyata.", line3: "Kami wujudkan ", mark: "langkah berikutnya.", body: ["Studio Nova membantu bisnis mewujudkan ide menjadi", " produk digital — website, sistem, dan solusi kustom", " yang mempermudah kerja dan mempercepat pertumbuhan."], seeWork: "Lihat karya kami", alt: "Tiga kolaborator mengubah ide menjadi website, sistem, dan desain" },
+  trusted: { label: "Klien kami", text: "Dipercaya oleh 50+ bisnis di Indonesia dan mancanegara." },
+  servicesHead: { eyebrow: "Layanan kami", title: ["Semua yang Anda butuhkan", "untuk tumbuh secara digital."], note: ["Dari konsep hingga peluncuran, kami menyediakan", "solusi digital menyeluruh sesuai tujuan Anda."], viewAll: "Lihat semua layanan", learnMore: "Selengkapnya", illustration: "ilustrasi" },
+  workHead: { eyebrow: "Lebih dekat", title: ["Proyek nyata.", "Dampak nyata."], note: ["Sekilas tentang apa yang telah kami bangun", "bersama klien-klien luar biasa."], seeAll: "Lihat semua proyek", preview: "pratinjau desain website" },
+  processHead: { eyebrow: "Cara kami bekerja", title: ["Proses sederhana,", "dari ide hingga peluncuran."], note: ["Kami menjaga semuanya jelas dan kolaboratif", "agar Anda selalu tahu langkah berikutnya."] },
+  testimonialsHead: { label: "Testimoni klien", eyebrow: "Apa kata klien kami", title: "Dipercaya oleh orang-orang hebat.", prev: "Testimoni sebelumnya", next: "Testimoni berikutnya" },
+  workflowsEyebrow: "Lihat apa yang bisa dilakukan Studio Nova",
+  cta: { alt: "Desainer Studio Nova sedang bekerja", eyebrow: "Mari membangun bersama", title: "Siap mewujudkan ide Anda?", schedule: "Jadwalkan panggilan" },
+  footer: { tagline: "Solusi digital untuk masa depan.", product: "Produk", demo: "Minta demo", resources: "Sumber daya", blog: "Blog", guides: "Panduan", help: "Pusat Bantuan", company: "Perusahaan", aboutUs: "Tentang Kami", careers: "Karier", contact: "Kontak", rights: "© 2026 Studio Nova. Hak cipta dilindungi.", terms: "Ketentuan", privacy: "Privasi", security: "Keamanan", cookies: "Cookie", language: "Bahasa Indonesia" },
+  info: {
+    pricing: { title: "Disesuaikan dengan proyek Anda", copy: "Setiap proyek berbeda. Ceritakan apa yang ingin Anda bangun dan kami akan membantu menentukan cakupan, jadwal, dan penawaran yang sesuai. Tanpa paket yang dipukul rata." },
+    projectPricing: { title: "Harga proyek", copy: "Kami memberikan penawaran berdasarkan cakupan, jadwal, dan kebutuhan teknis Anda. Bagikan ide Anda untuk mendapatkan proposal yang sesuai." },
+    blog: { title: "Jurnal studio", copy: "Jurnal kami segera hadir. Sementara itu, jelajahi proses dan karya terbaru kami untuk mengenal studio lebih dekat." },
+    careers: { title: "Bekerja bersama Studio Nova", copy: "Kami selalu senang bertemu desainer dan developer yang cermat. Perkenalkan diri Anda melalui formulir kontak kami dan sertakan tautan ke karya Anda." },
+    terms: { title: "Ketentuan", copy: "Cakupan proyek, tahapan pembayaran, kepemilikan, dan ketentuan dukungan disepakati dalam proposal tertulis sebelum pekerjaan dimulai." },
+    privacy: { title: "Privasi", copy: "Pratinjau ini tidak mengirim atau menyimpan isian formulir Anda di server. Ringkasan proyek Anda disiapkan di browser sehingga Anda dapat menyalin dan membagikannya." },
+    security: { title: "Keamanan", copy: "Pratinjau ini tidak meminta kata sandi atau informasi pembayaran. Mohon jangan menyertakan kredensial rahasia dalam ringkasan proyek Anda." },
+    cookies: { title: "Cookie", copy: "Halaman ini tidak menggunakan cookie analitik maupun iklan." },
+  },
+  dialog: {
+    close: "Tutup dialog", getInTouch: "Hubungi kami",
+    contact: { eyebrow: "Mari membangun bersama", titleCall: "Mari tentukan waktu untuk berbincang.", title: "Ceritakan ide Anda kepada kami.", intro: "Sedikit gambaran saja sudah cukup untuk memulai.", name: "Nama Anda", namePlaceholder: "Nama lengkap", email: "Alamat email", service: "Apa yang bisa kami bantu?", time: "Tanggal dan waktu pilihan", brief: "Sedikit tentang proyek Anda", briefPlaceholder: "Apa yang ingin Anda bangun?", submit: "Siapkan ringkasan proyek", ready: "Ringkasan Anda sudah siap.", readyNote: "Belum ada pesan yang terkirim. Salin ringkasan Anda untuk dibagikan kepada kontak Studio Nova Anda.", briefLabel: "Ringkasan proyek yang disiapkan", copy: "Salin ringkasan", copied: "Tersalin!", copyFailed: "Pilih ringkasan di atas untuk menyalin", draftTitle: "Permintaan proyek", draftName: "Nama", draftEmail: "Email", draftService: "Layanan", draftTime: "Waktu pilihan", draftBrief: "Ringkasan" },
+    service: { eyebrow: "Layanan kami", cta: "Mari diskusikan proyek Anda" },
+    project: { eyebrow: "Karya pilihan / Pratinjau desain", alt: "konsep website", cta: "Bangun yang seperti ini", next: "Proyek berikutnya" },
+    workflow: { eyebrow: "Dibuat sesuai cara kerja Anda", cta: "Jelajahi ide ini" },
+  },
+  services: [
+    { title: "Pengembangan Website", copy: "Website modern berperforma tinggi yang mewakili merek Anda.", detail: "Dari landing page yang terfokus hingga website perusahaan yang lengkap. Kami memadukan desain yang matang, pengembangan responsif, dan struktur konten yang membantu pelanggan menemukan apa yang mereka butuhkan.", items: ["Desain website responsif", "Pengembangan Next.js & CMS", "Optimasi SEO & performa"] },
+    { title: "Pengembangan Sistem", copy: "Sistem kustom untuk merampingkan operasional dan meningkatkan produktivitas.", detail: "Perangkat lunak yang dibentuk sesuai cara kerja tim Anda. Kami memetakan alur kerja Anda dan membangun sistem yang praktis dan andal agar operasional sehari-hari lebih sederhana.", items: ["Dashboard & portal internal", "Otomatisasi alur kerja", "Integrasi API & platform"] },
+    { title: "Desain UI/UX", copy: "Desain yang indah, fungsional, dan berpusat pada pengguna.", detail: "Pengalaman yang jelas berawal dari memahami manusia. Kami mengubah riset menjadi alur pengguna, prototipe interaktif, dan antarmuka yang terasa alami digunakan.", items: ["Riset pengguna & pemetaan pengalaman", "Wireframe & prototipe interaktif", "Desain antarmuka & design system"] },
+    { title: "Konsultasi & Dukungan", copy: "Dapatkan saran ahli dan dukungan berkelanjutan untuk produk digital Anda.", detail: "Tenaga berpengalaman tambahan untuk produk digital Anda. Bersama-sama, kami meninjau prioritas Anda, memecahkan tantangan teknis, dan menjaga website atau sistem Anda tetap berjalan lancar.", items: ["Konsultasi produk & teknologi", "Pemeliharaan website", "Dukungan teknis berkelanjutan"] },
+  ],
+  projects: [
+    { type: "Platform Acara & Website", description: "Konsep platform edukasi yang menghubungkan orang dengan peluang, acara, dan komunitas belajar yang terus berkembang." },
+    { type: "Website Profil Perusahaan", description: "Konsep profil perusahaan yang menyatukan keahlian industri, mobilitas modern, dan merek yang visioner dalam satu pengalaman digital yang jelas." },
+    { type: "Landing Page", description: "Konsep landing page yang terfokus dengan alur cerita yang jelas, tipografi yang matang, dan jalur langsung dari kesan pertama hingga pertanyaan." },
+  ],
+  testimonials: [
+    { quote: "Studio Nova mewujudkan visi kami melampaui ekspektasi. Profesional, responsif, dan benar-benar peduli pada hasilnya.", role: "Pendiri, NXEDU" },
+    { quote: "Sistem yang mereka bangun membuat alur kerja kami jauh lebih efisien. Sangat direkomendasikan!", role: "CEO, KIM EMS" },
+    { quote: "Desain yang bagus, komunikasi lancar, dan pengerjaan tepat waktu. Pasti akan bekerja sama lagi!", role: "Pendiri, Arunika" },
+  ],
+  steps: [
+    ["Temukan", "Memahami tujuan dan peluang Anda."],
+    ["Rencanakan", "Menyusun strategi dan peta jalan."],
+    ["Bangun", "Mendesain dan mengembangkan solusi Anda."],
+    ["Luncurkan", "Go live dan ciptakan dampak."],
+  ],
+  workflows: [
+    { title: "Pilah masukan produk", copy: "Kumpulkan masukan pelanggan di satu tempat, kelompokkan permintaan yang berulang, dan beri tim Anda gambaran jelas tentang apa yang perlu dibangun selanjutnya." },
+    { title: "Selesaikan tiket dukungan di Slack", copy: "Hubungkan kotak masuk dukungan dengan workspace Slack tim Anda agar permintaan sampai ke orang yang tepat dan pembaruan tetap sinkron." },
+    { title: "Tanggapi peringatan keamanan lebih cepat", copy: "Arahkan peringatan keamanan ke tim yang tepat beserta konteks yang mereka butuhkan untuk menyelidiki dan merespons." },
+    { title: "Otomatiskan laporan mingguan", copy: "Kumpulkan metrik yang penting dan ubah menjadi laporan mingguan yang konsisten untuk tim Anda." },
+    { title: "Buat alat developer Anda sendiri", copy: "Bangun alat internal yang terfokus pada alur kerja tim Anda, dengan integrasi yang menghubungkan sistem yang sudah ada." },
+  ],
+};
+
+const copy = { EN: en, ID: id };
+type InfoKey = keyof typeof en.info;
+type Modal = { kind: "contact"; call?: boolean } | { kind: "service"; index: number } | { kind: "project"; index: number } | { kind: "workflow"; index: number } | { kind: "info"; key: InfoKey };
 
 export default function NovaStudio() {
+  const { language, setLanguage } = useLanguage();
+  const c = copy[language];
   const [menu, setMenu] = useState(false);
+  const [languageMenu, setLanguageMenu] = useState(false);
+  const [languageMenuAlign, setLanguageMenuAlign] = useState<"left" | "right">("right");
+  const languagePicker = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!languageMenu) return;
+    // Close the language menu when clicking anywhere outside it.
+    const onPointerDown = (event: PointerEvent) => { if (!languagePicker.current?.contains(event.target as Node)) setLanguageMenu(false); };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [languageMenu]);
   const [activeSection, setActiveSection] = useState("");
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -71,7 +186,7 @@ export default function NovaStudio() {
       const element = document.getElementById(id);
       if (element) observer.observe(element);
     });
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setMenu(false); };
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { setMenu(false); setLanguageMenu(false); } };
     document.addEventListener("keydown", onKey);
     return () => { observer.disconnect(); document.removeEventListener("keydown", onKey); };
   }, []);
@@ -83,50 +198,51 @@ export default function NovaStudio() {
   const open = (value: Modal) => { setModal(value); setPrepared(false); dialog.current?.showModal(); setMenu(false); };
   const close = () => { dialog.current?.close(); setModal(null); };
   const contact = () => open({ kind: "contact" });
-  const info = (title: string, copy: string) => open({ kind: "info", title, copy });
+  const info = (key: InfoKey) => open({ kind: "info", key });
+  const d = c.dialog.contact;
 
   return (
     <div className="nova">
       <header className="nav wrap">
-        <a className="brand" href="#home" aria-label="Studio Nova home"><span className="brandmark">N</span> Studio Nova</a>
-        <nav className={menu ? "navlinks expanded" : "navlinks"} aria-label="Main navigation">
-          {[{ id: "services", label: "Services" }, { id: "work", label: "Our work" }, { id: "process", label: "Our process" }].map(item => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? "location" : undefined} onClick={() => { setMenu(false); setActiveSection(item.id); }}>{item.label}</a>)}
-          <button onClick={() => info("Built around your project", "Every project is different. Tell us what you want to build and we will help define the scope, timeline, and a tailored quote. No one-size-fits-all packages.")}>Pricing</button>
-          <a href="#about" aria-current={activeSection === "about" ? "location" : undefined} onClick={() => { setMenu(false); setActiveSection("about"); }}>About</a>
+        <a className="brand" href="#home" aria-label={c.nav.home}><span className="brandmark">N</span> Studio Nova</a>
+        <nav className={menu ? "navlinks expanded" : "navlinks"} aria-label={c.nav.main}>
+          {[{ id: "services", label: c.nav.services }, { id: "work", label: c.nav.work }, { id: "process", label: c.nav.process }].map(item => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? "location" : undefined} onClick={() => { setMenu(false); setActiveSection(item.id); }}>{item.label}</a>)}
+          <button onClick={() => info("pricing")}>{c.nav.pricing}</button>
+          <a href="#about" aria-current={activeSection === "about" ? "location" : undefined} onClick={() => { setMenu(false); setActiveSection("about"); }}>{c.nav.about}</a>
         </nav>
-        <div className="nav-actions"><button className="button dark small" onClick={contact}>Start a project</button><button className="menu-toggle icon-button" aria-label={menu ? "Close menu" : "Open menu"} aria-expanded={menu} onClick={() => setMenu(!menu)}>{menu ? <X size={21} /> : <Menu size={21} />}</button></div>
+        <div className="nav-actions"><div className="lang-switch" role="group" aria-label={c.nav.language}>{(["EN", "ID"] as const).map(code => <button key={code} aria-pressed={language === code} onClick={() => setLanguage(code)}>{code}</button>)}</div><button className="button dark small" onClick={contact}>{c.nav.start}</button><button className="menu-toggle icon-button" aria-label={menu ? c.nav.closeMenu : c.nav.openMenu} aria-expanded={menu} onClick={() => setMenu(!menu)}>{menu ? <X size={21} /> : <Menu size={21} />}</button></div>
       </header>
 
       <main id="home">
         <section className="hero wrap">
-          <div className="hero-copy"><h1>From ideas to<br />real products.<br /><span className="last-line">We build <mark>what&apos;s next.</mark></span></h1><p>Studio Nova helps businesses turn ideas into powerful<br className="desktop-break" /> digital products &mdash; websites, systems, and custom solutions<br className="desktop-break" /> that make work simpler and growth faster.</p><div className="actions"><button className="button dark" onClick={contact}>Start a project <ArrowRight size={15} /></button><a className="button" href="#work">See our work</a></div></div>
+          <div className="hero-copy"><h1>{c.hero.line1}<br />{c.hero.line2}<br /><span className="last-line">{c.hero.line3}<mark>{c.hero.mark}</mark></span></h1><p>{c.hero.body[0]}<br className="desktop-break" />{c.hero.body[1]}<br className="desktop-break" />{c.hero.body[2]}</p><div className="actions"><button className="button dark" onClick={contact}>{c.nav.start} <ArrowRight size={15} /></button><a className="button" href="#work">{c.hero.seeWork}</a></div></div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="hero-art" src="/nova-studio/hero.png" width="1536" height="1024" alt="Three collaborators turning ideas into websites, systems, and designs" fetchPriority="high" />
+          <img className="hero-art" src="/nova-studio/hero.png" width="1536" height="1024" alt={c.hero.alt} fetchPriority="high" />
         </section>
 
-        <section className="trusted wrap" aria-label="Our clients"><p className="eyebrow">Trusted by 50+ businesses across Indonesia and beyond.</p><div className="logos"><span><Box /> NXEDU</span><span className="kim"><Hexagon fill="currentColor" /> KIM EMS</span><span className="arunika">arunika</span><span className="lokalagi">LokaLagi<sup>®</sup></span><span><Fingerprint /> Sendja</span><span><span className="growth-symbol">w</span> growthix</span></div></section>
+        <section className="trusted wrap" aria-label={c.trusted.label}><p className="eyebrow">{c.trusted.text}</p><div className="logos"><span><Box /> NXEDU</span><span className="kim"><Hexagon fill="currentColor" /> KIM EMS</span><span className="arunika">arunika</span><span className="lokalagi">LokaLagi<sup>®</sup></span><span><Fingerprint /> Sendja</span><span><span className="growth-symbol">w</span> growthix</span></div></section>
 
-        <section id="services" className="section wrap"><div className="section-head"><div><p className="eyebrow">Our services</p><h2>Everything you need<br />to build and grow digitally.</h2></div><p className="section-note">From concept to launch and beyond, we provide<br />end-to-end digital solutions tailored to your goals.</p><button className="button small" onClick={() => open({ kind: "service", index: 0 })}>View all services <ArrowRight size={14} /></button></div><div className="service-grid">{services.map((s, i) => <article className="service-card" key={s.title}><div className={`doodle service-doodle sprite-${i}`} role="img" aria-label={s.title + " illustration"} /><h3>{s.title}</h3><p>{s.copy}</p><button className="text-link" onClick={() => open({ kind: "service", index: i })}>Learn more <ArrowRight size={16} /></button></article>)}</div></section>
+        <section id="services" className="section wrap"><div className="section-head"><div><p className="eyebrow">{c.servicesHead.eyebrow}</p><h2>{c.servicesHead.title[0]}<br />{c.servicesHead.title[1]}</h2></div><p className="section-note">{c.servicesHead.note[0]}<br />{c.servicesHead.note[1]}</p><button className="button small" onClick={() => open({ kind: "service", index: 0 })}>{c.servicesHead.viewAll} <ArrowRight size={14} /></button></div><div className="service-grid">{c.services.map((s, i) => <article className="service-card" key={i}><div className={`doodle service-doodle sprite-${i}`} role="img" aria-label={`${s.title} ${c.servicesHead.illustration}`} /><h3>{s.title}</h3><p>{s.copy}</p><button className="text-link" onClick={() => open({ kind: "service", index: i })}>{c.servicesHead.learnMore} <ArrowRight size={16} /></button></article>)}</div></section>
 
-        <section id="work" className="section work wrap"><div className="section-head"><div><p className="eyebrow">A closer look</p><h2>Real projects.<br />Real impact.</h2></div><p className="section-note">A glimpse of what we&apos;ve built together<br />with amazing clients.</p><button className="button small" onClick={() => open({ kind: "project", index: 0 })}>See all projects <ArrowRight size={14} /></button></div><div className="project-grid">{projects.map((p, i) => <button className="project-card" key={p.name} onClick={() => open({ kind: "project", index: i })}><div className={`project-image project-${i}`} role="img" aria-label={`${p.name} website design preview`} /><div className="project-caption"><div><h3>{p.name}</h3><p>{p.type}</p></div><ArrowRight size={18} /></div></button>)}</div></section>
+        <section id="work" className="section work wrap"><div className="section-head"><div><p className="eyebrow">{c.workHead.eyebrow}</p><h2>{c.workHead.title[0]}<br />{c.workHead.title[1]}</h2></div><p className="section-note">{c.workHead.note[0]}<br />{c.workHead.note[1]}</p><button className="button small" onClick={() => open({ kind: "project", index: 0 })}>{c.workHead.seeAll} <ArrowRight size={14} /></button></div><div className="project-grid">{c.projects.map((p, i) => <button className="project-card" key={i} onClick={() => open({ kind: "project", index: i })}><div className={`project-image project-${i}`} role="img" aria-label={`${projectNames[i]} ${c.workHead.preview}`} /><div className="project-caption"><div><h3>{projectNames[i]}</h3><p>{p.type}</p></div><ArrowRight size={18} /></div></button>)}</div></section>
 
-        <section id="process" className="section process wrap"><div className="section-head"><div><p className="eyebrow">How we work</p><h2>A simple process,<br />from idea to launch.</h2></div><p className="section-note">We keep things clear and collaborative<br />at every step, so you always know what&apos;s next.</p></div><div className="steps">{steps.map(([title, text], i) => <div className="step" key={title}><div className={`doodle step-doodle sprite-${i + 4}`} role="img" aria-label={title + " illustration"} /><div><h3>{i + 1}. {title}</h3><p>{text}</p></div>{i < 3 && <ArrowRight className="step-arrow" size={19} />}</div>)}</div></section>
+        <section id="process" className="section process wrap"><div className="section-head"><div><p className="eyebrow">{c.processHead.eyebrow}</p><h2>{c.processHead.title[0]}<br />{c.processHead.title[1]}</h2></div><p className="section-note">{c.processHead.note[0]}<br />{c.processHead.note[1]}</p></div><div className="steps">{c.steps.map(([title, text], i) => <div className="step" key={i}><div className={`doodle step-doodle sprite-${i + 4}`} role="img" aria-label={`${title} ${c.servicesHead.illustration}`} /><div><h3>{i + 1}. {title}</h3><p>{text}</p></div>{i < 3 && <ArrowRight className="step-arrow" size={19} />}</div>)}</div></section>
 
-        <section className="section testimonials wrap" aria-label="Client testimonials"><div className="section-head"><div><p className="eyebrow">What our clients say</p><h2>Trusted by amazing people.</h2></div><div className="carousel-controls"><button className="icon-button" title="Previous testimonials" aria-label="Previous testimonials" onClick={() => setSlide((slide + 2) % 3)}><ArrowLeft size={18} /></button><button className="icon-button" title="Next testimonials" aria-label="Next testimonials" onClick={() => setSlide((slide + 1) % 3)}><ArrowRight size={18} /></button></div></div><div className="testimonial-grid" aria-live="polite">{testimonials.map((_, i) => { const t = testimonials[(i + slide) % 3]; return <figure className="quote" key={t.name}><blockquote>&ldquo;{t.quote}&rdquo;</blockquote><figcaption><span className="avatar"><span className="doodle sprite-0" /></span><span><strong>{t.name}</strong><small>{t.role}</small></span></figcaption></figure>; })}</div></section>
+        <section className="section testimonials wrap" aria-label={c.testimonialsHead.label}><div className="section-head"><div><p className="eyebrow">{c.testimonialsHead.eyebrow}</p><h2>{c.testimonialsHead.title}</h2></div><div className="carousel-controls"><button className="icon-button" title={c.testimonialsHead.prev} aria-label={c.testimonialsHead.prev} onClick={() => setSlide((slide + 2) % 3)}><ArrowLeft size={18} /></button><button className="icon-button" title={c.testimonialsHead.next} aria-label={c.testimonialsHead.next} onClick={() => setSlide((slide + 1) % 3)}><ArrowRight size={18} /></button></div></div><div className="testimonial-grid" aria-live="polite">{c.testimonials.map((_, i) => { const index = (i + slide) % 3; const t = c.testimonials[index]; return <figure className="quote" key={index}><blockquote>&ldquo;{t.quote}&rdquo;</blockquote><figcaption><span className="avatar"><span className="doodle sprite-0" /></span><span><strong>{testimonialNames[index]}</strong><small>{t.role}</small></span></figcaption></figure>; })}</div></section>
 
-        <section className="workflow-section wrap"><p className="eyebrow">See what Studio Nova can do</p><div className="workflow-grid">{workflows.map((w, i) => <button className="workflow" key={w.title} onClick={() => open({ kind: "workflow", index: i })}><span className="workflow-icon" style={{ background: w.color }}><w.icon size={21} strokeWidth={1.7} /></span><span>{w.title} <ArrowRight size={11} /></span></button>)}</div></section>
+        <section className="workflow-section wrap"><p className="eyebrow">{c.workflowsEyebrow}</p><div className="workflow-grid">{c.workflows.map((w, i) => { const Icon = workflowStyles[i].icon; return <button className="workflow" key={i} onClick={() => open({ kind: "workflow", index: i })}><span className="workflow-icon" style={{ background: workflowStyles[i].color }}><Icon size={21} strokeWidth={1.7} /></span><span>{w.title} <ArrowRight size={11} /></span></button>; })}</div></section>
 
-        <section id="about" className="cta-band"><div className="wrap cta"><div className="doodle cta-doodle sprite-0" role="img" aria-label="A Studio Nova designer at work" /><div className="cta-copy"><p className="eyebrow">Let&apos;s build together</p><h2>Ready to bring your idea to life?</h2></div><div className="actions"><button className="button dark" onClick={contact}>Start a project <ArrowRight size={15} /></button><button className="button" onClick={() => open({ kind: "contact", call: true })}>Schedule a call</button></div></div></section>
+        <section id="about" className="cta-band"><div className="wrap cta"><div className="doodle cta-doodle sprite-0" role="img" aria-label={c.cta.alt} /><div className="cta-copy"><p className="eyebrow">{c.cta.eyebrow}</p><h2>{c.cta.title}</h2></div><div className="actions"><button className="button dark" onClick={contact}>{c.nav.start} <ArrowRight size={15} /></button><button className="button" onClick={() => open({ kind: "contact", call: true })}>{c.cta.schedule}</button></div></div></section>
       </main>
 
-      <footer className="wrap footer"><div className="footer-main"><div className="footer-brand"><a className="brand" href="#home"><span className="brandmark">N</span> Studio Nova</a><p>Digital solutions for what&apos;s next.</p></div><div className="footer-column"><span>Product</span><a href="#services">Services</a><button onClick={() => info("Project pricing", "We quote based on your scope, timeline, and technical needs. Share your idea to get a tailored proposal.")}>Pricing</button><button onClick={contact}>Request a demo</button></div><div className="footer-column"><span>Resources</span><button onClick={() => info("Studio journal", "Our journal is coming soon. In the meantime, explore our process and recent work to get to know the studio.")}>Blog</button><a href="#process">Guides</a><button onClick={() => open({ kind: "service", index: 3 })}>Help Center</button></div><div className="footer-column"><span>Company</span><a href="#about">About Us</a><button onClick={() => info("Work with Studio Nova", "We are always interested in meeting thoughtful designers and developers. Introduce yourself through our contact form and include a link to your work.")}>Careers</button><button onClick={contact}>Contact</button></div><div className="socials">{[{ icon: Linkedin, label: "LinkedIn" }, { icon: Instagram, label: "Instagram" }, { icon: Youtube, label: "YouTube" }, { icon: Mail, label: "Email" }].map(({ icon: Icon, label }) => <button key={label} className="icon-button" aria-label={label} title={label} onClick={contact}><Icon size={15} /></button>)}</div></div><div className="footer-bottom"><span>&copy; 2026 Studio Nova. All rights reserved.</span><div><button onClick={() => info("Terms", "Project scope, payment milestones, ownership, and support terms are agreed in a written proposal before work begins.")}>Terms</button><button onClick={() => info("Privacy", "This preview does not send or store your form entries on a server. Your project brief is prepared in your browser so you can copy and share it.")}>Privacy</button><button onClick={() => info("Security", "This preview does not ask for passwords or payment information. Please avoid including confidential credentials in your project brief.")}>Security</button><button onClick={() => info("Cookies", "This landing page does not set analytics or advertising cookies.")}>Cookies</button><span className="language"><Globe size={15} /> English (US) <ChevronDown size={12} /></span></div></div></footer>
+      <footer className="wrap footer"><div className="footer-main"><div className="footer-brand"><a className="brand" href="#home"><span className="brandmark">N</span> Studio Nova</a><p>{c.footer.tagline}</p></div><div className="footer-column"><span>{c.footer.product}</span><a href="#services">{c.nav.services}</a><button onClick={() => info("projectPricing")}>{c.nav.pricing}</button><button onClick={contact}>{c.footer.demo}</button></div><div className="footer-column"><span>{c.footer.resources}</span><button onClick={() => info("blog")}>{c.footer.blog}</button><a href="#process">{c.footer.guides}</a><button onClick={() => open({ kind: "service", index: 3 })}>{c.footer.help}</button></div><div className="footer-column"><span>{c.footer.company}</span><a href="#about">{c.footer.aboutUs}</a><button onClick={() => info("careers")}>{c.footer.careers}</button><button onClick={contact}>{c.footer.contact}</button></div><div className="socials">{[{ icon: Linkedin, label: "LinkedIn" }, { icon: Instagram, label: "Instagram" }, { icon: Youtube, label: "YouTube" }, { icon: Mail, label: "Email" }].map(({ icon: Icon, label }) => <button key={label} className="icon-button" aria-label={label} title={label} onClick={contact}><Icon size={15} /></button>)}</div></div><div className="footer-bottom"><span>{c.footer.rights}</span><div><button onClick={() => info("terms")}>{c.footer.terms}</button><button onClick={() => info("privacy")}>{c.footer.privacy}</button><button onClick={() => info("security")}>{c.footer.security}</button><button onClick={() => info("cookies")}>{c.footer.cookies}</button><div className="language-picker" ref={languagePicker}><button className="language" aria-haspopup="true" aria-expanded={languageMenu} onClick={() => { const box = languagePicker.current!.getBoundingClientRect(); setLanguageMenuAlign(box.right - 180 < 16 ? "left" : "right"); setLanguageMenu(!languageMenu); }}><Globe size={15} /> {c.footer.language} <ChevronDown size={12} /></button>{languageMenu && <div className={`language-menu align-${languageMenuAlign}`} role="group" aria-label={c.nav.language}>{languages.map(option => <button key={option.code} aria-pressed={language === option.code} onClick={() => { setLanguage(option.code); setLanguageMenu(false); }}>{option.label}{language === option.code && <Check size={14} />}</button>)}</div>}</div></div></div></footer>
 
-      <dialog ref={dialog} className="nova-dialog" onCancel={() => setModal(null)} onClick={e => { if (e.target === e.currentTarget) close(); }}><button className="dialog-close icon-button" aria-label="Close dialog" onClick={close}><X size={21} /></button>
-        {modal?.kind === "contact" && <div><p className="eyebrow">Let&apos;s build together</p><h2>{modal.call ? "Let's find a time to talk." : "Tell us about your idea."}</h2><p className="modal-intro">A little context is all we need to get started.</p><form onSubmit={e => { e.preventDefault(); const data = new FormData(e.currentTarget); setDraft(`Project inquiry\nName: ${data.get("name")}\nEmail: ${data.get("email")}\nService: ${data.get("service")}\n${modal.call ? `Preferred time: ${data.get("time")}\n` : ""}Brief: ${data.get("brief")}`); setPrepared(true); }}><div className="form-row"><label>Your name<input name="name" required autoComplete="name" placeholder="Full name" /></label><label>Email address<input name="email" type="email" required autoComplete="email" placeholder="you@company.com" /></label></div><label>What can we help with?<select name="service">{services.map(s => <option key={s.title}>{s.title}</option>)}</select></label>{modal.call && <label>Preferred date and time<input type="datetime-local" name="time" required /></label>}<label>A little about your project<textarea name="brief" required rows={4} placeholder="What would you like to build?" /></label><button className="button dark" type="submit">Prepare project brief <ArrowRight size={15} /></button>{prepared && <div className="prepared" role="status"><strong><Check size={16} /> Your brief is ready.</strong><p>No message has been sent. Copy your brief to share with your Studio Nova contact.</p><textarea aria-label="Prepared project brief" value={draft} readOnly rows={5} /><button type="button" className="button small" onClick={async e => { const button = e.currentTarget; try { await navigator.clipboard.writeText(draft); button.textContent = "Copied!"; } catch { button.textContent = "Select the brief above to copy"; } }}>Copy brief</button></div>}</form></div>}
-        {modal?.kind === "service" && <div><p className="eyebrow">Our services</p><div className="modal-tabs">{services.map((s, i) => <button aria-pressed={modal.index === i} key={s.title} onClick={() => setModal({ kind: "service", index: i })}>{s.title}</button>)}</div><div className={`doodle modal-doodle sprite-${modal.index}`} /><h2>{services[modal.index].title}</h2><p className="modal-intro">{services[modal.index].detail}</p><ul className="feature-list">{services[modal.index].items.map(item => <li key={item}><Check size={17} />{item}</li>)}</ul><button className="button dark" onClick={contact}>Let&apos;s talk about your project <ArrowRight size={15} /></button></div>}
-        {modal?.kind === "project" && <div><p className="eyebrow">Selected work / Design preview</p><div className={`project-image modal-project project-${modal.index}`} role="img" aria-label={`${projects[modal.index].name} concept website`} /><h2>{projects[modal.index].name}</h2><p className="project-type">{projects[modal.index].type}</p><p className="modal-intro">{projects[modal.index].description}</p><div className="actions"><button className="button dark" onClick={contact}>Build something like this <ArrowRight size={15} /></button><button className="button" onClick={() => setModal({ kind: "project", index: (modal.index + 1) % 3 })}>Next project <ArrowRight size={15} /></button></div></div>}
-        {modal?.kind === "workflow" && <div><p className="eyebrow">Made for the way you work</p><h2>{workflows[modal.index].title}</h2><p className="modal-intro">{workflows[modal.index].copy}</p><button className="button dark" onClick={contact}>Explore this idea <ArrowRight size={15} /></button></div>}
-        {modal?.kind === "info" && <div><p className="eyebrow">Studio Nova</p><h2>{modal.title}</h2><p className="modal-intro">{modal.copy}</p><button className="button dark" onClick={contact}>Get in touch <ArrowRight size={15} /></button></div>}
+      <dialog ref={dialog} className="nova-dialog" onCancel={() => setModal(null)} onClick={e => { if (e.target === e.currentTarget) close(); }}><button className="dialog-close icon-button" aria-label={c.dialog.close} onClick={close}><X size={21} /></button>
+        {modal?.kind === "contact" && <div><p className="eyebrow">{d.eyebrow}</p><h2>{modal.call ? d.titleCall : d.title}</h2><p className="modal-intro">{d.intro}</p><form onSubmit={e => { e.preventDefault(); const data = new FormData(e.currentTarget); setDraft(`${d.draftTitle}\n${d.draftName}: ${data.get("name")}\n${d.draftEmail}: ${data.get("email")}\n${d.draftService}: ${data.get("service")}\n${modal.call ? `${d.draftTime}: ${data.get("time")}\n` : ""}${d.draftBrief}: ${data.get("brief")}`); setPrepared(true); }}><div className="form-row"><label>{d.name}<input name="name" required autoComplete="name" placeholder={d.namePlaceholder} /></label><label>{d.email}<input name="email" type="email" required autoComplete="email" placeholder="you@company.com" /></label></div><label>{d.service}<select name="service">{c.services.map((s, i) => <option key={i}>{s.title}</option>)}</select></label>{modal.call && <label>{d.time}<input type="datetime-local" name="time" required /></label>}<label>{d.brief}<textarea name="brief" required rows={4} placeholder={d.briefPlaceholder} /></label><button className="button dark" type="submit">{d.submit} <ArrowRight size={15} /></button>{prepared && <div className="prepared" role="status"><strong><Check size={16} /> {d.ready}</strong><p>{d.readyNote}</p><textarea aria-label={d.briefLabel} value={draft} readOnly rows={5} /><button type="button" className="button small" onClick={async e => { const button = e.currentTarget; try { await navigator.clipboard.writeText(draft); button.textContent = d.copied; } catch { button.textContent = d.copyFailed; } }}>{d.copy}</button></div>}</form></div>}
+        {modal?.kind === "service" && <div><p className="eyebrow">{c.dialog.service.eyebrow}</p><div className="modal-tabs">{c.services.map((s, i) => <button aria-pressed={modal.index === i} key={i} onClick={() => setModal({ kind: "service", index: i })}>{s.title}</button>)}</div><div className={`doodle modal-doodle sprite-${modal.index}`} /><h2>{c.services[modal.index].title}</h2><p className="modal-intro">{c.services[modal.index].detail}</p><ul className="feature-list">{c.services[modal.index].items.map(item => <li key={item}><Check size={17} />{item}</li>)}</ul><button className="button dark" onClick={contact}>{c.dialog.service.cta} <ArrowRight size={15} /></button></div>}
+        {modal?.kind === "project" && <div><p className="eyebrow">{c.dialog.project.eyebrow}</p><div className={`project-image modal-project project-${modal.index}`} role="img" aria-label={`${projectNames[modal.index]} ${c.dialog.project.alt}`} /><h2>{projectNames[modal.index]}</h2><p className="project-type">{c.projects[modal.index].type}</p><p className="modal-intro">{c.projects[modal.index].description}</p><div className="actions"><button className="button dark" onClick={contact}>{c.dialog.project.cta} <ArrowRight size={15} /></button><button className="button" onClick={() => setModal({ kind: "project", index: (modal.index + 1) % 3 })}>{c.dialog.project.next} <ArrowRight size={15} /></button></div></div>}
+        {modal?.kind === "workflow" && <div><p className="eyebrow">{c.dialog.workflow.eyebrow}</p><h2>{c.workflows[modal.index].title}</h2><p className="modal-intro">{c.workflows[modal.index].copy}</p><button className="button dark" onClick={contact}>{c.dialog.workflow.cta} <ArrowRight size={15} /></button></div>}
+        {modal?.kind === "info" && <div><p className="eyebrow">Studio Nova</p><h2>{c.info[modal.key].title}</h2><p className="modal-intro">{c.info[modal.key].copy}</p><button className="button dark" onClick={contact}>{c.dialog.getInTouch} <ArrowRight size={15} /></button></div>}
       </dialog>
 
       <style jsx>{`
@@ -159,6 +275,10 @@ export default function NovaStudio() {
         @media(hover:hover){.project-card:hover,.workflow:hover{transform:translateY(-3px);box-shadow:0 6px 20px #1423350a}.button:hover :global(svg),.text-link:hover :global(svg),.project-card:hover .project-caption> :global(svg){transform:translateX(3px)}}
         .nova .button:active,.nova .icon-button:active{transform:translateY(1px)}
         @media(prefers-reduced-motion:reduce){:global(html){scroll-behavior:auto!important}.nova *{animation:none!important;transition:none!important;scroll-behavior:auto!important}.nova .service-card:hover,.nova .project-card:hover,.nova .workflow:hover,.nova .button:hover,.nova .button:active,.nova .icon-button:active{transform:none}.nova :global(svg){transform:none!important}}
+        .lang-switch{display:inline-flex;padding:3px;gap:2px;background:#f4f6f8;border:1px solid #eaedf0;border-radius:7px}.lang-switch button{border:0;background:none;padding:6px 9px;border-radius:5px;font-size:11px;font-weight:600;color:#5c6066;transition:background .18s,color .18s}.lang-switch button:hover{color:#131c27}.lang-switch button[aria-pressed=true]{background:#fff;color:#1672c4;box-shadow:0 1px 4px #182b4510}.footer-bottom .language{border:0;background:none;padding:0;font-size:12px}.footer-bottom .language:hover{color:#11161b}
+        @media(max-width:680px){.lang-switch button{padding:5px 7px;font-size:10px}}
+        @media(max-width:360px){.lang-switch{padding:2px}.lang-switch button{padding:4px 5px}}
+        .language-picker{position:relative}.language :global(svg:last-child){transition:transform .18s}.language[aria-expanded=true] :global(svg:last-child){transform:rotate(180deg)}.language-menu{position:absolute;bottom:calc(100% + 8px);z-index:30;display:flex;flex-direction:column;min-width:180px;padding:4px;background:#fff;border:1px solid #e3e4e6;border-radius:6px;box-shadow:0 8px 24px #0000001a;animation:novaOpen .15s ease-out}.language-menu button{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:4px;font-size:12px;color:#41464d}.language-menu button:hover{background:#f4f6f8;color:#11161b}.language-menu button[aria-pressed=true]{color:#1672c4;font-weight:600}.align-right{right:0}.align-left{left:0}
       `}</style>
     </div>
   );
